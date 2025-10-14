@@ -3,7 +3,7 @@ import time
 import sys
 import os
 
-script_path = os.path.join(os.path.dirname(__file__), "widget.py")
+script_path = os.path.join(os.path.dirname(__file__), "schedule_widget.py")
 
 while True:
     # Start the widget silently (no console window)
