@@ -1,51 +1,10 @@
 import tkinter as tk
 import datetime as dt
+import time
+import sys
+import threading
 
-schedule = {
-    "Måndag": [
-        ("08:20", "10:00", "HKK (SA)"),
-        ("10:10", "11:05", "SV (ATA, AC, AED) – sal 101"),
-        ("11:05", "11:35", "Lunch"),
-        ("12:05", "13:25", "KE (JLT, AC) – sal 10"),
-        ("13:45", "14:55", "BL (HBR)"),
-        ("15:00", "16:00", "Studietid (MER, SAL, MSV, SA) – sal 309")
-    ],
-    "Tisdag": [
-        ("08:20", "09:10", "M2DEU (PB) – sal 309"),
-        ("09:25", "10:20", "MA (FHE, HIS) – sal C2"),
-        ("10:40", "12:00", "KE (JLT, AC) – sal 10"),
-        ("12:10", "12:40", "Lunch"),
-        ("13:20", "14:15", "IDH (ASD)"),
-        ("14:30", "15:20", "SV (ATA, AED) – sal 107")
-    ],
-    "Onsdag": [
-        ("09:00", "09:30", "Mentorstid – sal PMA, ATA"),
-        ("09:40", "10:40", "EN (MPE, YEN) – sal 202"),
-        ("11:00", "12:05", "SO (PMA) – sal 106"),
-        ("12:05", "12:35", "Lunch"),
-        ("12:35", "13:30", "MA (FHE) – sal C2"),
-        ("13:40", "14:35", "IDH (ASD)")
-    ],
-    "Torsdag": [
-        ("08:00", "08:20", "Studietid (EFA, MER, ASD, AAV, TAD, AED) – sal 309"),
-        ("08:20", "09:35", "SO (PMA) – sal 106"),
-        ("09:55", "10:55", "MA (FHE) – sal C2"),
-        ("10:55", "11:25", "Lunch"),
-        ("11:40", "12:30", "M2DEU (PB) – sal 309"),
-        ("12:55", "13:50", "SV (ATA, AC) – sal 104"),
-        ("14:00", "15:00", "EN (MPE) – sal 202")
-    ],
-    "Fredag": [
-        ("08:00", "08:20", "Studietid (EFA, ATA, SAL, MPE, AED) – sal 309"),
-        ("08:20", "09:10", "IDH (ASD)"),
-        ("09:50", "11:10", "SO (PMA) – sal 106"),
-        ("11:10", "11:40", "Lunch"),
-        ("11:40", "12:25", "M2DEU (PB) – sal 309"),
-        ("12:45", "13:50", "MA (FHE) – sal C2"),
-        ("13:50", "15:00", "SL (FAL)")
-    ]
-}
-
+# --- Your schedule dictionary here (keep it as-is) ---
 
 class ScheduleWidget:
     def __init__(self):
@@ -60,25 +19,27 @@ class ScheduleWidget:
         self.label_day = tk.Label(self.root, font=("Helvetica", 16, "bold"), fg="white", bg="black")
         self.label_day.pack(padx=10, pady=(8, 0))
 
-        # Lektionen (större)
         self.label_class = tk.Label(self.root, font=("Helvetica", 30, "bold"), fg="lightgreen", bg="black")
         self.label_class.pack(padx=10, pady=(5, 0))
 
-        # Statusrad ("Lektion pågår" / "Nästa lektion")
         self.label_status = tk.Label(self.root, font=("Helvetica", 20, "bold"), fg="orange", bg="black")
         self.label_status.pack(padx=10, pady=(2, 0))
 
-        # Tid (start–slut och hur länge kvar)
         self.label_time = tk.Label(self.root, font=("Helvetica", 16), fg="lightblue", bg="black")
         self.label_time.pack(padx=10, pady=(0, 5))
 
         # --- Fönsterdragning ---
         self.root.bind("<Button-1>", self.start_move)
         self.root.bind("<B1-Motion>", self.do_move)
-        self.root.bind("<Double-Button-1>", self.close)
+
+        # --- Prevent closing ---
+        self.root.protocol("WM_DELETE_WINDOW", self.disable_event)
 
         self.update_info()
         self.root.mainloop()
+
+    def disable_event(self):
+        pass  # Ignore all close attempts
 
     def find_next_or_current_class(self):
         now = dt.datetime.now()
@@ -88,7 +49,7 @@ class ScheduleWidget:
             "Thursday": "Torsdag", "Friday": "Fredag",
             "Saturday": "Lördag", "Sunday": "Söndag"
         }
-        day_sv = days_sv[day_name]
+        day_sv = days_sv.get(day_name, day_name)
         if day_sv not in schedule:
             return day_sv, None, None, None, "Ingen skoldag idag 😊", None
 
@@ -124,7 +85,6 @@ class ScheduleWidget:
 
         self.root.after(60000, self.update_info)
 
-    # --- Flytta fönster ---
     def start_move(self, event):
         self.x = event.x
         self.y = event.y
@@ -134,9 +94,18 @@ class ScheduleWidget:
         y = self.root.winfo_y() + event.y - self.y
         self.root.geometry(f"+{x}+{y}")
 
-    def close(self, event):
-        self.root.destroy()
+
+def keep_running():
+    while True:
+        try:
+            ScheduleWidget()
+        except:
+            time.sleep(1)  # Wait a bit before restarting
 
 
 if __name__ == "__main__":
-    ScheduleWidget()
+    t = threading.Thread(target=keep_running)
+    t.daemon = True
+    t.start()
+    while True:
+        time.sleep(1)  # Keep main thread alive
