@@ -17,7 +17,7 @@ schedule = {
         ("09:25", "10:20", "MA (sal C2)"),
         ("10:40", "12:00", "KE (JLT, AC) – sal 10"),
         ("12:10", "12:40", "Lunch"),
-        ("13:20", "14:15", "Idrott (Idrotsshall)"),
+        ("13:20", "14:15", "Idrott (Idrottshall)"),
         ("14:30", "15:20", "SV (sal 107)")
     ],
     "Onsdag": [
@@ -26,7 +26,7 @@ schedule = {
         ("11:00", "12:05", "SO (sal 106)"),
         ("12:05", "12:35", "Lunch"),
         ("12:35", "13:30", "MA (sal C2)"),
-        ("13:40", "14:35", "Idrott (Idrotsshall)"),
+        ("13:40", "14:35", "Idrott (Idrottshall)")
     ],
     "Torsdag": [
         ("08:00", "08:20", "Studietid (EFA, MER, ASD, AAV, TAD, AED) – sal 309"),
@@ -39,7 +39,7 @@ schedule = {
     ],
     "Fredag": [
         ("08:00", "08:20", "Studietid (sal 309)"),
-        ("08:20", "09:10", "Idrott (Idrotsshall),
+        ("08:20", "09:10", "Idrott (Idrottshall)"),  # <-- fixed missing quote here
         ("09:50", "11:10", "SO (sal 106)"),
         ("11:10", "11:40", "Lunch"),
         ("11:40", "12:25", "M2DEU (sal 309)"),
@@ -140,7 +140,8 @@ def keep_running():
     while True:
         try:
             ScheduleWidget()
-        except:
+        except Exception as e:
+            print(f"Error: {e}")
             time.sleep(1)
 
 if __name__ == "__main__":
@@ -149,4 +150,3 @@ if __name__ == "__main__":
     t.start()
     while True:
         time.sleep(1)
-
